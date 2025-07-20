@@ -18,8 +18,10 @@ def home_view(request):
 
 class EventSearchAPIView(APIView):
     def get(self, request, *args, **kwargs):
-        print('+' * 100)
-        print(request.query_params)
+
+        # Start time measurement
+        start_search_time = time.time()  
+
         serializer = EventSearchSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
@@ -34,8 +36,6 @@ class EventSearchAPIView(APIView):
             except ValueError:
                 return Response({"error": "Query must be in key=value format."}, status=400)
 
-        print("Search Parameters:", query, start_time, end_time)
-
         results = []
         events_dir = os.path.join(settings.BASE_DIR, 'events')
 
@@ -48,7 +48,6 @@ class EventSearchAPIView(APIView):
                 with open(filepath, 'r') as f:
                     for line in f:
                         parts = line.strip().split()
-                        print(f"Parts: {parts}")
 
                         if len(parts) < 15:
                             continue
@@ -78,22 +77,23 @@ class EventSearchAPIView(APIView):
                                 if field_data != val:
                                     is_matched = False
                             except Exception as e:
-                                print(f"Exception: {e}")
                                 continue
 
                         if is_matched:
+                            # End time measurement
+                            end_search_time = time.time()
+                            duration = round(end_search_time - start_search_time, 2)
+
                             results.append({
                                 "srcaddr": parts[4],
                                 "dstaddr": parts[5],
                                 "action": parts[-2],
                                 "status": parts[-1],
                                 "filename": filename,
-                                "event_time": event_start_time
+                                "duration": f'{duration} seconds'
                             })
-                        break  # break after processing first matching line
-                break
+
             except Exception as e:
-                print(f"Error reading file {filename}: {e}")
                 continue
 
         return Response(results, status=status.HTTP_200_OK)
