@@ -1,0 +1,51 @@
+# ---------------- Backend --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django migrations
+**/migrations/__pycache__/
+**/migrations/*.pyc
+
+# SQLite database (optional)
+# *.sqlite3
+
+# Environment variables
+.env
+
+# VSCode and PyCharm settings
+.vscode/
+.idea/
+
+
+# ---------------- Frontend --------------------
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Local environment files
+*.local
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
