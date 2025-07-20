@@ -96,4 +96,19 @@ class EventSearchAPIView(APIView):
             except Exception as e:
                 continue
 
-        return Response(results, status=status.HTTP_200_OK)
+        # Return formatted response
+        if results:
+            reponse = {
+                "success": True,
+                "message": "Matching events found.",
+                "data": results
+            }
+
+        else:
+            reponse = {
+                "success": False,
+                "message": "No matching events found.",
+                "data": results
+            }
+
+        return Response(reponse, status=status.HTTP_200_OK)
