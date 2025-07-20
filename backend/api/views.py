@@ -15,100 +15,100 @@ from rest_framework.decorators import api_view
 def home_view(request):
     return Response({"message": "Welome to IDS home!"})
 
+class TestErrorView(APIView):
+    def get(self, request):
+        print('0000000000000000000000000000')
+        raise ValueError("This is a test error")
+
 
 class EventSearchAPIView(APIView):
     def get(self, request, *args, **kwargs):
-
-        # Start time measurement
-        start_search_time = time.time()  
-
-        serializer = EventSearchSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-
-        query = serializer.validated_data.get('query')
-        start_time = serializer.validated_data.get('start_time')
-        end_time = serializer.validated_data.get('end_time')
-
-        key, val = None, None
-        if query:
-            try:
-                key, val = query.split('=')
-            except ValueError:
-                return Response({"error": "Query must be in key=value format."}, status=400)
-
+        start_search_time = time.time()
         results = []
-        events_dir = os.path.join(settings.BASE_DIR, 'events')
 
-        for filename in os.listdir(events_dir):
-            filepath = os.path.join(events_dir, filename)
-            if not os.path.isfile(filepath):
-                continue
+        try:
+            serializer = EventSearchSerializer(data=request.query_params)
+            serializer.is_valid(raise_exception=True)
 
-            try:
-                with open(filepath, 'r') as f:
-                    for line in f:
-                        parts = line.strip().split()
+            query = serializer.validated_data.get('query')
+            start_time = serializer.validated_data.get('start_time')
+            end_time = serializer.validated_data.get('end_time')
 
-                        if len(parts) < 15:
-                            continue
+            key, val = None, None
+            if query:
+                try:
+                    key, val = query.split('=')
+                except ValueError:
+                    return Response({
+                        "success": False,
+                        "message": "Query must be in key=value format.",
+                        "data": []
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-                        try:
-                            event_start_time = int(parts[-3])
-                            event_end_time = int(parts[-4])
-                        except ValueError:
-                            continue
+            events_dir = os.path.join(settings.BASE_DIR, 'events')
 
-                        # Filter by provided start_time and end_time
-                        if start_time and event_end_time < start_time:
-                            # Event ends before search window
-                            continue  
+            for filename in os.listdir(events_dir):
+                filepath = os.path.join(events_dir, filename)
+                if not os.path.isfile(filepath):
+                    continue
 
-                        if end_time and event_start_time > end_time:
-                            # Event starts after search window
-                            continue
+                try:
+                    with open(filepath, 'r') as f:
+                        for line in f:
+                            parts = line.strip().split()
+                            if len(parts) < 15:
+                                continue
 
-                        is_matched = True
-                        if key and val:
                             try:
+                                event_start_time = int(parts[-3])
+                                event_end_time = int(parts[-4])
+                            except ValueError:
+                                continue
+
+                            if start_time and event_end_time < start_time:
+                                continue
+                            if end_time and event_start_time > end_time:
+                                continue
+
+                            is_matched = True
+                            if key and val:
                                 field_index = FIELD_INDEX_MAP.get(key)
                                 if field_index is None:
                                     continue
-                                field_data = parts[field_index]
-                                if field_data != val:
+                                if parts[field_index] != val:
                                     is_matched = False
-                            except Exception as e:
-                                continue
 
-                        if is_matched:
-                            # End time measurement
-                            end_search_time = time.time()
-                            duration = round(end_search_time - start_search_time, 2)
+                            if is_matched:
+                                end_search_time = time.time()
+                                duration = round(end_search_time - start_search_time, 2)
+                                results.append({
+                                    "srcaddr": parts[4],
+                                    "dstaddr": parts[5],
+                                    "action": parts[-2],
+                                    "status": parts[-1],
+                                    "filename": filename,
+                                    "duration": f'{duration} seconds'
+                                })
+                except Exception as e:
+                    continue
 
-                            results.append({
-                                "srcaddr": parts[4],
-                                "dstaddr": parts[5],
-                                "action": parts[-2],
-                                "status": parts[-1],
-                                "filename": filename,
-                                "duration": f'{duration} seconds'
-                            })
+            # Success or no result case
+            if results:
+                return Response({
+                    "success": True,
+                    "message": "Matching events found.",
+                    "data": results
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "No matching events found.",
+                    "data": []
+                }, status=status.HTTP_200_OK)
 
-            except Exception as e:
-                continue
-
-        # Return formatted response
-        if results:
-            reponse = {
-                "success": True,
-                "message": "Matching events found.",
-                "data": results
-            }
-
-        else:
-            reponse = {
+        except Exception as e:
+            return Response({
                 "success": False,
-                "message": "No matching events found.",
-                "data": results
-            }
-
-        return Response(reponse, status=status.HTTP_200_OK)
+                "message": str(e),
+                "data": []
+            }, status=status.HTTP_400_BAD_REQUEST)
