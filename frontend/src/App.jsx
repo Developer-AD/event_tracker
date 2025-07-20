@@ -11,21 +11,21 @@ function App() {
   const [eventLogs, setEventLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchEventLogs = async (
-    query = "dstaddr=30.55.177.194",
-    start_time = null,
-    end_time = null
-  ) => {
+  const [query, setQuery] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const fetchEventLogs = async (query, start_time, end_time) => {
     try {
-      // alert("Fetch event log.");
+      alert("Fetch event log.");
 
       const res = await getEvents(query, start_time, end_time);
-      // console.log(res);
-      if (res.data.success){
-        // alert('Success.');
+      console.log(res.data);
+      if (res.data.success) {
+        alert('Success.');
         setEventLogs(res.data.data);
 
-        console.log(res.data.data)
+        console.log(res.data.data);
       }
     } catch (error) {
       // toast.error("Failed to fetch event logs.");
@@ -51,7 +51,8 @@ function App() {
               <input
                 type="text"
                 placeholder="Search IP or (e.g. dstaddr=221.181.27.227)"
-                value=""
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </div>
             <div className="search-group">
@@ -59,6 +60,8 @@ function App() {
               <input
                 type="text"
                 placeholder="Start Time (epoch)"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
               />
             </div>
             <div className="search-group">
@@ -66,12 +69,17 @@ function App() {
               <input
                 type="text"
                 placeholder="End Time (epoch)"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
               />
             </div>
 
             <button
               className="search-button"
               disabled={isLoading}
+              onClick={() =>
+                fetchEventLogs(query, startTime || null, endTime || null)
+              }
             >
               {isLoading ? (
                 <>
