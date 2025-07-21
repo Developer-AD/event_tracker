@@ -35,13 +35,10 @@ class EventSearchAPIView(APIView):
             if query:
                 query = str(query).strip()
 
-                print(f'View: {query} & type: {type(query)}')
-
                 if '=' in query:
                     try:
                         key, val = query.split('=', 1)
                     except ValueError:
-                        # raise ValidationError("Query format is invalid. Use 'key=value'.")
                         return Response({
                                 "success": False,
                                 "message": "Query format is invalid. Use 'key=value'.",
@@ -60,12 +57,9 @@ class EventSearchAPIView(APIView):
                 try:
                     with open(filepath, 'r') as f:
                         for line in f:
-                            print('=>tag-2')
                             parts = line.strip().split()
                             if len(parts) < 15:
                                 continue
-
-                            print('=>tag-3')
 
                             try:
                                 event_start_time = int(parts[-3])
@@ -80,7 +74,6 @@ class EventSearchAPIView(APIView):
 
                             is_matched = True
                             if key and val:
-                                print('=>tag-4')
                                 field_index = FIELD_INDEX_MAP.get(key)
 
                                 if field_index is None:
@@ -125,9 +118,6 @@ class EventSearchAPIView(APIView):
 
         # except Exception as e:
         except Exception as e:
-            print('-'*100)
-            print(e)
-            print('-'*100)
             # Check if the exception has a response with non_field_errors
             try:
                 error_data = getattr(e, 'detail', {})  # e.g. from serializers.ValidationError

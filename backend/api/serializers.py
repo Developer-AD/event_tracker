@@ -34,8 +34,9 @@ class EventSearchSerializer(serializers.Serializer):
                 try:
                     key, val = query.split('=', 1)
                     
-                    # if key not in FIELD_INDEX_MAP.keys():
-                    #     raise ValidationError(f"Search key '{key}' is invalid")
+                    if key not in FIELD_INDEX_MAP.keys():
+                        raise ValidationError(f"Search key '{key}' is invalid")
+                    
                 except ValueError:
                     raise ValidationError("Query format is invalid. Use 'key=value'.")
 
