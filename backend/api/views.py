@@ -101,9 +101,21 @@ class EventSearchAPIView(APIView):
                     "data": []
                 }, status=status.HTTP_200_OK)
 
+        # except Exception as e:
         except Exception as e:
+            # Check if the exception has a response with non_field_errors
+            try:
+                error_data = getattr(e, 'detail', {})  # e.g. from serializers.ValidationError
+                non_field_error = (
+                    error_data.get('non_field_errors', [])[0]
+                    if isinstance(error_data, dict) and 'non_field_errors' in error_data
+                    else None
+                )
+            except Exception:
+                non_field_error = None
+
             return Response({
                 "success": False,
-                "message": str(e),
+                "message": non_field_error or "Something went wrong.",
                 "data": []
             }, status=status.HTTP_400_BAD_REQUEST)
