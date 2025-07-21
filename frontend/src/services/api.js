@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const api = axios.create({ baseURL: "http://localhost" });
-// const api = axios.create({ baseURL: "http://192.168.1.55/" });
+const api = axios.create({ baseURL: "http://localhost:8000" });
 
 // Fetch event logs with search filters
 export const getEvents = (
