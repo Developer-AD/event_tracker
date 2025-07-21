@@ -4,6 +4,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { getEvents } from "./services/api";
 
+import { toast } from "react-toastify";
+
 
 const itemsPerPage = 6;
 
@@ -15,26 +17,26 @@ function App() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  const fetchEventLogs = async (query, start_time, end_time) => {
-    try {
-      alert("Fetch event log.");
+const fetchEventLogs = async (query, start_time, end_time) => {
+  try {
+    const res = await getEvents(query, start_time, end_time);
 
-      const res = await getEvents(query, start_time, end_time);
-      console.log(res.data);
-      if (res.data.success) {
-        alert('Success.');
-        setEventLogs(res.data.data);
-
-        console.log(res.data.data);
-      }
-    } catch (error) {
-      // toast.error("Failed to fetch event logs.");
-      console.error(error);
+    if (res.data.success) {
+      setEventLogs(res.data.data);
+      toast.success(res.data.message || "Event logs fetched successfully.");
+    } else {
+      toast.error(res.data.message || "No event logs found.");
     }
-  };
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message || error.message || "Something went wrong.";
+    toast.error(errorMessage);
+    console.error("Fetch error:", error);
+  }
+};
 
   useEffect(() => {
-    fetchEventLogs();
+    // fetchEventLogs();
   }, []);
 
 
