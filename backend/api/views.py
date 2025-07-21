@@ -31,12 +31,11 @@ class EventSearchAPIView(APIView):
 
             key, val = None, None
             ip_address = None
-            if '=' in query:
-                print(f"key:val-{query}")
+            
+            if query and '=' in query:
                 key, val = query.split('=')
             else:
                 ip_address = query
-                print(f"Ip add: {ip_address}")
 
             events_dir = os.path.join(settings.BASE_DIR, 'events')
 
@@ -48,9 +47,12 @@ class EventSearchAPIView(APIView):
                 try:
                     with open(filepath, 'r') as f:
                         for line in f:
+                            print('=>tag-2')
                             parts = line.strip().split()
                             if len(parts) < 15:
                                 continue
+
+                            print('=>tag-3')
 
                             try:
                                 event_start_time = int(parts[-3])
@@ -65,7 +67,9 @@ class EventSearchAPIView(APIView):
 
                             is_matched = True
                             if key and val:
+                                print('=>tag-4')
                                 field_index = FIELD_INDEX_MAP.get(key)
+
                                 if field_index is None:
                                     continue
                                 if parts[field_index] != val:

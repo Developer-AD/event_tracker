@@ -22,13 +22,15 @@ function App() {
     try {
       const res = await getEvents(query, start_time, end_time);
 
-      if (res.data.success) {
+      if (res.data.success && Array.isArray(res.data.data)) {
         setEventLogs(res.data.data);
         toast.success(res.data.message || "Event logs fetched successfully.");
       } else {
+        setEventLogs([]);
         toast.error(res.data.message || "No event logs found.");
       }
     } catch (error) {
+      setEventLogs([]);
       const errorMessage =
         error.response?.data?.message || error.message || "Something went wrong.";
       toast.error(errorMessage);
@@ -37,7 +39,6 @@ function App() {
       setIsLoading(false);
     }
   };
-
 
   useEffect(() => {
     // fetchEventLogs();
