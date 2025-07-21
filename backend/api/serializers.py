@@ -27,7 +27,7 @@ class EventSearchSerializer(serializers.Serializer):
             raise ValidationError("At least one of 'query', 'start_time', or 'end_time' must be provided.")
         
         # Check key in query params.
-        if query:
+        if '=' in query:
             key, val = query.split('=')
 
             if key not in FIELD_INDEX_MAP.keys():

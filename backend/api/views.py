@@ -30,15 +30,13 @@ class EventSearchAPIView(APIView):
             end_time = serializer.validated_data.get('end_time')
 
             key, val = None, None
-            if query:
-                try:
-                    key, val = query.split('=')
-                except ValueError:
-                    return Response({
-                        "success": False,
-                        "message": "Query must be in key=value format.",
-                        "data": []
-                    }, status=status.HTTP_400_BAD_REQUEST)
+            ip_address = None
+            if '=' in query:
+                print(f"key:val-{query}")
+                key, val = query.split('=')
+            else:
+                ip_address = query
+                print(f"Ip add: {ip_address}")
 
             events_dir = os.path.join(settings.BASE_DIR, 'events')
 
@@ -73,14 +71,21 @@ class EventSearchAPIView(APIView):
                                 if parts[field_index] != val:
                                     is_matched = False
 
+                            srcaddr = parts[4]
+                            dstaddr = parts[5]
+                            action = parts[-2]
+                            log_status = parts[-1]
+                            if ip_address and ip_address not in [srcaddr, dstaddr]:
+                                is_matched = False
+
                             if is_matched:
                                 end_search_time = time.time()
                                 duration = round(end_search_time - start_search_time, 2)
                                 results.append({
-                                    "srcaddr": parts[4],
-                                    "dstaddr": parts[5],
-                                    "action": parts[-2],
-                                    "status": parts[-1],
+                                    "srcaddr": srcaddr,
+                                    "dstaddr": dstaddr,
+                                    "action": action,
+                                    "status": log_status,
                                     "filename": filename,
                                     "duration": f'{duration} seconds'
                                 })
@@ -103,6 +108,9 @@ class EventSearchAPIView(APIView):
 
         # except Exception as e:
         except Exception as e:
+            print('-'*100)
+            print(e)
+            print('-'*100)
             # Check if the exception has a response with non_field_errors
             try:
                 error_data = getattr(e, 'detail', {})  # e.g. from serializers.ValidationError
