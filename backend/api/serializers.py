@@ -28,10 +28,17 @@ class EventSearchSerializer(serializers.Serializer):
         
         # Check key in query params.
         if query:
-            key, val = query.split('=')
+            query = str(query).strip()
 
-            if key not in FIELD_INDEX_MAP.keys():
-                raise ValidationError(f"Search key '{key}' is invalid")
+            if '=' in query:
+                try:
+                    key, val = query.split('=', 1)
+                    
+                    # if key not in FIELD_INDEX_MAP.keys():
+                    #     raise ValidationError(f"Search key '{key}' is invalid")
+                except ValueError:
+                    raise ValidationError("Query format is invalid. Use 'key=value'.")
+
             
         # Validate start and end time.
         if start_time and end_time:

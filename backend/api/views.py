@@ -31,11 +31,24 @@ class EventSearchAPIView(APIView):
 
             key, val = None, None
             ip_address = None
-            
-            if query and '=' in query:
-                key, val = query.split('=')
-            else:
-                ip_address = query
+
+            if query:
+                query = str(query).strip()
+
+                print(f'View: {query} & type: {type(query)}')
+
+                if '=' in query:
+                    try:
+                        key, val = query.split('=', 1)
+                    except ValueError:
+                        # raise ValidationError("Query format is invalid. Use 'key=value'.")
+                        return Response({
+                                "success": False,
+                                "message": "Query format is invalid. Use 'key=value'.",
+                                "data": []
+                            }, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    ip_address = query
 
             events_dir = os.path.join(settings.BASE_DIR, 'events')
 
