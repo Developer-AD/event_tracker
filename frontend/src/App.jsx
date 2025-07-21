@@ -17,23 +17,27 @@ function App() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-const fetchEventLogs = async (query, start_time, end_time) => {
-  try {
-    const res = await getEvents(query, start_time, end_time);
+  const fetchEventLogs = async (query, start_time, end_time) => {
+    setIsLoading(true);
+    try {
+      const res = await getEvents(query, start_time, end_time);
 
-    if (res.data.success) {
-      setEventLogs(res.data.data);
-      toast.success(res.data.message || "Event logs fetched successfully.");
-    } else {
-      toast.error(res.data.message || "No event logs found.");
+      if (res.data.success) {
+        setEventLogs(res.data.data);
+        toast.success(res.data.message || "Event logs fetched successfully.");
+      } else {
+        toast.error(res.data.message || "No event logs found.");
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || error.message || "Something went wrong.";
+      toast.error(errorMessage);
+      console.error("Fetch error:", error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    const errorMessage =
-      error.response?.data?.message || error.message || "Something went wrong.";
-    toast.error(errorMessage);
-    console.error("Fetch error:", error);
-  }
-};
+  };
+
 
   useEffect(() => {
     // fetchEventLogs();
@@ -60,7 +64,7 @@ const fetchEventLogs = async (query, start_time, end_time) => {
             <div className="search-group">
               <label>Start Time</label>
               <input
-                type="text"
+                type="number"
                 placeholder="Start Time (epoch)"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
@@ -69,7 +73,7 @@ const fetchEventLogs = async (query, start_time, end_time) => {
             <div className="search-group">
               <label>End Time</label>
               <input
-                type="text"
+                type="number"
                 placeholder="End Time (epoch)"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
