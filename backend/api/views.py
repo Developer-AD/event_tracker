@@ -13,7 +13,7 @@ from .serializers import FIELD_INDEX_MAP
 from rest_framework.decorators import api_view
 @api_view(['GET'])
 def home_view(request):
-    return Response({"message": "Welome to IDS home!"})
+    return Response({"message": "Welome to Event Tracker home!"})
 
 class TestErrorView(APIView):
     def get(self, request):
