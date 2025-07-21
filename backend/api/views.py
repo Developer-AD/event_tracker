@@ -15,11 +15,6 @@ from rest_framework.decorators import api_view
 def home_view(request):
     return Response({"message": "Welome to Event Tracker home!"})
 
-class TestErrorView(APIView):
-    def get(self, request):
-        print('0000000000000000000000000000')
-        raise ValueError("This is a test error")
-
 
 class EventSearchAPIView(APIView):
     def get(self, request, *args, **kwargs):
