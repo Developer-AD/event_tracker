@@ -3,19 +3,26 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "80:5173"
+    depends_on:
+      - backend
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - static_volume:/var/www/backend/static
+      - media_volume:/var/www/backend/media
+    ports:
+      - "80:80"
+    container_name: web-nginx
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
+    # volumes:
+    #   - static_volume:/app/static
+    #   - media_volume:/app/media
+    expose:
+      - "8000"
+    container_name: backend-api
+
+volumes:
+  static_volume:
+  media_volume:

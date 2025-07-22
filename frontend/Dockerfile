@@ -1,12 +1,14 @@
-FROM node:20
-
+# node block
+FROM node:alpine3.16 AS nodework
 WORKDIR /app
-
 COPY package.json package-lock.json* ./
 RUN npm install
-
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
-
-CMD ["node", "--experimental-global-webcrypto", "./node_modules/vite/bin/vite.js"]
+# nginx block
+FROM nginx:1.23-alpine
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+COPY --from=nodework /app/dist .
+COPY nginx.conf /etc/nginx/conf.d/default.conf

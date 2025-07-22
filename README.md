@@ -1,27 +1,57 @@
-Event Tracker
+# Event Tracker
 =============
 
-Author: Abhishek Kumar  
-Email : abhishek1py@gmail.com  
-Website: https://incredibleds.tech  
+**Author:** Abhishek Kumar  
+**Email:** abhishek1py@gmail.com  
+**Website:** [https://incredibleds.tech](https://incredibleds.tech)  
 
 This project contains a Django REST Framework backend and a React frontend in a monorepo structure.
 
-Project Structure:
+## Directory Structure:
 ------------------
-event_tracker/
-├── backend/     -> Django backend
-└── frontend/    -> React frontend
+event_tracker/  
+├── backend/  
+│   ├── Dockerfile  
+│   ├── manage.py  
+│   └── ... (Django files)  
+│  
+├── frontend/  
+│   ├── Dockerfile  
+│   ├── nginx.conf  
+│   ├── index.html  
+│   └── ... (React/Vite files)  
+│  
+└── docker-compose.yml  
 
-Setup Instructions:
--------------------
+---
 
-1. Clone the Repository
------------------------
+# Setup and Run Instructions
+
+---
+
+## Run with Docker Compose (Recommended for Production & Development)
+
+1. Clone the repository and navigate to project root:
+
 git clone https://github.com/Developer-AD/event_tracker.git
 cd event_tracker
 
-2. Setup Backend (Django)
+2. Build and start services with Docker Compose:
+docker-compose up -d --build
+
+3. Access your app:
+- Frontend: http://localhost
+- Backend API: http://localhost/api/ (proxied via nginx)
+
+4. To stop the services:
+docker-compose down
+
+4. To stop the services:
+
+================================================================================================
+
+## Run without Docker Compose (Manual Development Setup)
+1. Setup Backend (Django)
 -------------------------
 cd backend
 
@@ -38,7 +68,7 @@ pip install -r requirements.txt
 # Run migrations
 python manage.py migrate
 
-3. Running Django Backend
+2. Run Django Backend
 -------------------------
 
 Option A: Run on port 80 (default)
@@ -61,7 +91,7 @@ For port 8000:
 --------------
 const baseUrl = 'http://localhost:8000';
 
-4. Test the Backend
+3. Test the Backend
 -------------------
 Open your browser and go to:
 http://localhost/api/
@@ -70,7 +100,7 @@ Expected Response:
 ------------------
 { "message": "Welcome to Event Tracker home!" }
 
-5. Setup Frontend (React)
+4. Setup Frontend (React)
 -------------------------
 Open a new terminal window:
 
